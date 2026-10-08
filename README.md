@@ -6,9 +6,9 @@ Gooo 프로그램에서 가져다 쓰는 작은 함수 모음입니다. 숫자·
 
 함수의 동작은 `library/*.gooo`에 있습니다. Go 코드는 입력 전달과 결과 비교,
 관측 파일 저장을 맡습니다. Go 1.27.1과
-[Gooo 0.6.11 개발 소스](https://github.com/kimjooyoon/meta-ontology-go/blob/fd91a3f099f7c65f3fed19d6c7e11b87b8d9b300/docs/releases/0.6.11-dev.md)의
-소스 기반 패키지 설정을 사용합니다. 공개 파일과 정확한 소스는
-[컴파일러 배포 페이지](https://github.com/kimjooyoon/meta-ontology-go/releases)에서 확인합니다.
+[Gooo 0.6.11 개발판](https://github.com/kimjooyoon/meta-ontology-go/releases/tag/v0.6.11-dev)의
+소스 기반 패키지 설정을 사용합니다. CI는 공개 Linux 파일의 해시와 배포 소스
+`27594824ad628ef0e8362bbc1e0e034aee88e07c`를 확인합니다.
 
 ## 들어 있는 함수
 
@@ -116,6 +116,8 @@ go run ./cmd/verify --compiler /path/to/gooo --model /path/to/model.json --out o
 CI도 공개된 컴파일러 파일과 고정한 모델 소스로 같은 예제를 실행합니다.
 첫 [Linux CI](https://github.com/kimjooyoon/gooo-standard-library/actions/runs/37766633713)도
 통과했습니다. 플랫폼별 원본과 대조 범위는 [후속 관측](publication/ci-20261008/README.md)에 있습니다.
+0.6.11 설정으로 옮긴 회귀 관측은 [소스 기반 설정 적용 기록](publication/source-workspace-20261008/README.md)에
+있습니다. 기존 함수·입력·모델을 그대로 사용해 부분 결과와 생성 코드까지 대조했습니다.
 
 기존 [생태계 작업장](https://github.com/kimjooyoon/gooo-ecosystem-workbench)의 기본 함수와
 컴파일러의 문자열 예제에서 출발했습니다. 작은 도구에서 같은 판단과 계산을
