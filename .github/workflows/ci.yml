@@ -1,0 +1,43 @@
+name: Gooo library and importing consumer
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  native-library:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version: '1.27.1'
+      - name: Download the published Gooo 0.6.10 compiler
+        run: |
+          curl --fail --location --retry 3 --output "$RUNNER_TEMP/gooo.tar.gz" https://github.com/kimjooyoon/meta-ontology-go/releases/download/v0.6.10-dev/gooo-linux-amd64.tar.gz
+          printf '%s  %s\n' da1abed162a95133a79c14d340aa763ae4945639cb791e30d541066fcf20bd93 "$RUNNER_TEMP/gooo.tar.gz" | sha256sum -c -
+          mkdir "$RUNNER_TEMP/gooo-published"
+          tar -xzf "$RUNNER_TEMP/gooo.tar.gz" -C "$RUNNER_TEMP/gooo-published"
+          cp "$RUNNER_TEMP/gooo-published/gooo" .gooo
+          ./.gooo version --build --json | jq -e '.version=="0.6.10-dev" and .vcs_revision=="eb0dc4704705147f9ba944db3df2ba5e3225cbff" and .vcs_modified=="false" and .go_version=="go1.27.1"'
+      - uses: actions/checkout@v7
+        with:
+          repository: kimjooyoon/gooo-ecosystem-workbench
+          ref: 19485bb64278ab8ac219e042f92af677ff3f5051
+          path: .model
+          sparse-checkout: models/graph-chooser-20261008/all-data-demonstration/qat_ternary
+      - name: Check the Go observer and Gooo library sources
+        run: |
+          test -z "$(gofmt -l cmd/verify)"
+          go vet ./...
+          go test -race ./...
+          for source in library/*.gooo; do ./.gooo check "$source"; done
+      - name: Execute library fixtures and compare fixed and model construction
+        run: |
+          mkdir -p out
+          go run ./cmd/verify --compiler "$PWD/.gooo" --model "$PWD/.model/models/graph-chooser-20261008/all-data-demonstration/qat_ternary/model.json" --out out/ci | tee out/ci.log
+          jq -e '.functions==17 and .consumer_programs==1 and .model_observed==true and ([.runs[]|select(.mode=="library")|.passed]|add)==79 and ([.runs[]|select(.mode=="library")|.input_tuples]|add)==79 and ([.runs[]|select(.budget==8)|.passed==10 and .fields_passed==30 and .input_only_rows==3]|all) and ([.runs[].replay_equal]|all)' out/ci/summary.json
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: library-native-observations
+          path: out/
