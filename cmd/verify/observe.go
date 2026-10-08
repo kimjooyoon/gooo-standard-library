@@ -29,8 +29,7 @@ type envelope struct {
 	Schema, Decision, Error string
 	ReplayedFrom            string `json:"replayed_from_sha256"`
 	Result                  struct {
-		Generated bool `json:"generated_now"`
-		Replay    *struct {
+		Replay *struct {
 			Calls *int `json:"model_calls"`
 		} `json:"replay"`
 		Composition struct {
@@ -163,8 +162,8 @@ func observe(ctx context.Context, compiler, root string, f fixture, mode string,
 		return r, err
 	}
 	r.Passed, r.FieldsPassed, r.FieldsTotal, r.GeneratedSHA = passed, fp, ft, built.Result.Composition.SHA
-	if !built.Result.Generated {
-		return r, fmt.Errorf("fresh construction required")
+	if built.ReplayedFrom != "" || built.Result.Replay != nil {
+		return r, fmt.Errorf("execute unexpectedly returned saved-replay metadata")
 	}
 	for _, step := range built.Result.Composition.Steps {
 		if a := step.Generation.Report.Assembly; len(a) > 0 && string(a) != "null" {
@@ -179,7 +178,7 @@ func observe(ctx context.Context, compiler, root string, f fixture, mode string,
 	if err != nil {
 		return r, err
 	}
-	if saved.Result.Generated || saved.Result.Replay == nil || saved.Result.Replay.Calls == nil || *saved.Result.Replay.Calls != 0 || saved.ReplayedFrom == "" || saved.Result.Composition.SHA != r.GeneratedSHA || !reflect.DeepEqual(actuals, replayed) {
+	if saved.Result.Replay == nil || saved.Result.Replay.Calls == nil || *saved.Result.Replay.Calls != 0 || saved.ReplayedFrom == "" || saved.Result.Composition.SHA != r.GeneratedSHA || !reflect.DeepEqual(actuals, replayed) {
 		return r, fmt.Errorf("saved replay differs")
 	}
 	r.ReplayEqual = true
