@@ -2,9 +2,9 @@
   "schema": "gooo/package-workspace-manifest/v1",
   "entry": {"package_path": "examples/preview", "activity": "Plan"},
   "packages": [
-    {"path": "std/numbers", "name": "numbers", "imports": [], "sources": ["library/numbers.gooo"]},
-    {"path": "std/logic", "name": "logic", "imports": [], "sources": ["library/logic.gooo"]},
-    {"path": "std/text", "name": "text", "imports": [], "sources": ["library/text.gooo"]},
-    {"path": "examples/preview", "name": "preview", "imports": ["std/numbers", "std/logic", "std/text"], "sources": ["examples/preview.gooo"]}
+    {"path": "std/numbers", "sources": ["library/numbers.gooo"]},
+    {"path": "std/logic", "sources": ["library/logic.gooo"]},
+    {"path": "std/text", "sources": ["library/text.gooo"]},
+    {"path": "examples/preview", "sources": ["examples/preview.gooo"]}
   ]
 }

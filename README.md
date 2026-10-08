@@ -6,7 +6,9 @@ Gooo 프로그램에서 가져다 쓰는 작은 함수 모음입니다. 숫자·
 
 함수의 동작은 `library/*.gooo`에 있습니다. Go 코드는 입력 전달과 결과 비교,
 관측 파일 저장을 맡습니다. Go 1.27.1과
-[Gooo 0.6.10 개발판](https://github.com/kimjooyoon/meta-ontology-go/releases/tag/v0.6.10-dev)을 사용합니다.
+[Gooo 0.6.11 개발 소스](https://github.com/kimjooyoon/meta-ontology-go/blob/fd91a3f099f7c65f3fed19d6c7e11b87b8d9b300/docs/releases/0.6.11-dev.md)의
+소스 기반 패키지 설정을 사용합니다. 공개 파일과 정확한 소스는
+[컴파일러 배포 페이지](https://github.com/kimjooyoon/meta-ontology-go/releases)에서 확인합니다.
 
 ## 들어 있는 함수
 
@@ -75,10 +77,15 @@ entity Integer id "gooo://std/integer"
 activity Bound(Integer, Integer) -> Integer computes `return numbers.Clamp(input0, 0, input1)`
 ```
 
-사용할 `.gooo` 파일을 작업공간에 넣고 `gooo.workspace.json`의 패키지·소스·가져오기
-목록에 등록합니다. 이 저장소의 [작업공간 명세](gooo.workspace.json)와
+사용할 `.gooo` 파일을 작업공간에 넣고 `gooo.workspace.json`에 패키지 경로와 소스
+위치를 등록합니다. 패키지 이름과 import는 Gooo 파일에서 읽습니다.
+이 저장소의 [작업공간 명세](gooo.workspace.json)와
 [호출하는 예제](examples/preview.gooo)가 전체 구성입니다. 현재 배포 단위는
 Git으로 버전을 고정한 소스 파일과 작업공간 명세입니다.
+
+0.1.0 실험판은 0.6.10 컴파일러와 명시형 작업공간을 사용했습니다. 이 구성은
+0.6.11 이상이 필요합니다. 작업공간 파일도 저장한 실행 기록에 연결되므로, 이전
+기록은 원래 태그의 파일로 재실행하거나 새 구성에서 한 번 다시 조립합니다.
 
 ## 확인한 범위
 
