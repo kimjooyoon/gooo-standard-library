@@ -174,6 +174,13 @@ func inspect(raw []byte, f fixture) (envelope, int, int, int, []any, error) {
 	if passed != *r.Passed || len(f.Cases) != *r.Total {
 		return e, 0, 0, 0, nil, fmt.Errorf("finite count mismatch")
 	}
+	wantDecision := "PROGRESS"
+	if passed == len(f.Cases) {
+		wantDecision = "PASS"
+	}
+	if e.Decision != wantDecision {
+		return e, 0, 0, 0, nil, fmt.Errorf("execution decision differs from finite observations")
+	}
 	return e, passed, fp, ft, actuals, nil
 }
 
@@ -207,6 +214,9 @@ func observe(ctx context.Context, compiler, root string, f fixture, mode string,
 			r.Assembly = append(r.Assembly, a)
 		}
 	}
+	if err = checkModelUse(r, model != ""); err != nil {
+		return r, err
+	}
 	raw, err = execute(ctx, compiler, filepath.Join(dir, "replay.json"), "package", "replay", "--json", "--receipt", filepath.Join(dir, "execution.json"), "--cases", cases, manifest)
 	if err != nil {
 		return r, err
@@ -233,4 +243,40 @@ func equalJSON(left, right json.RawMessage) bool {
 	l, le := decode(left)
 	r, re := decode(right)
 	return le == nil && re == nil && reflect.DeepEqual(l, r)
+}
+
+func checkModelUse(r report, enabled bool) error {
+	var m struct {
+		Loaded *bool `json:"loaded"`
+	}
+	if err := json.Unmarshal(r.Model, &m); err != nil {
+		return err
+	}
+	if m.Loaded == nil || *m.Loaded != enabled {
+		return fmt.Errorf("model load observation differs")
+	}
+	want := 0
+	if r.Budget > 0 {
+		want = 1
+	}
+	if len(r.Assembly) != want {
+		return fmt.Errorf("assembly activity count differs")
+	}
+	for _, raw := range r.Assembly {
+		var a struct {
+			Calls *int `json:"model_calls"`
+			Total int  `json:"total"`
+		}
+		if err := json.Unmarshal(raw, &a); err != nil {
+			return err
+		}
+		calls := 0
+		if enabled {
+			calls = 1
+		}
+		if a.Calls == nil || *a.Calls != calls || a.Total != 5 {
+			return fmt.Errorf("construction call or selection roster differs")
+		}
+	}
+	return nil
 }
