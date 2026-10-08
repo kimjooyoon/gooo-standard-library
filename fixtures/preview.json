@@ -1,0 +1,12 @@
+{"package":"examples/preview","activity":"Plan","cases":[
+  {"inputs":["chapter",2],"expected":{"available":true,"title":"chapter","bytes":2}},
+  {"inputs":["chapter",200],"expected":{"available":true,"title":"chapter","bytes":7}},
+  {"inputs":["",0],"expected":{"available":false,"title":"untitled","bytes":0}},
+  {"inputs":["",3],"expected":{"available":false,"title":"untitled","bytes":3}},
+  {"inputs":["",-9223372036854775808],"expected":{"available":false,"title":"untitled","bytes":0}},
+  {"inputs":["가나다",8],"expected":{"available":true,"title":"가나다","bytes":8}},
+  {"inputs":["🙂🙂",1],"expected":{"available":true,"title":"🙂🙂","bytes":1}},
+  {"inputs":["notice",9223372036854775807],"expected":{"available":true,"title":"notice","bytes":6}},
+  {"inputs":["notice",-9223372036854775808],"expected":{"available":false,"title":"notice","bytes":0}},
+  {"inputs":["a long title extending beyond the eighty byte preview budget for this particular document example",100],"expected":{"available":true,"title":"a long title extending beyond the eighty byte preview budget for this particular document example","bytes":80}}
+]}
