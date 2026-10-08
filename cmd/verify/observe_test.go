@@ -50,3 +50,22 @@ func TestInspectBindsValuesAndMetadata(t *testing.T) {
 func delivery(r map[string]any) map[string]any {
 	return r["runtime"].(map[string]any)["traces"].([]any)[0].(map[string]any)["deliveries"].([]any)[0].(map[string]any)
 }
+
+func TestModelMetadataFollowsConstructionProfile(t *testing.T) {
+	if err := checkModelUse(report{}, false); err != nil {
+		t.Fatal(err)
+	}
+	if err := checkModelUse(report{Budget: 8}, false); err == nil {
+		t.Fatal("missing chooser metadata accepted")
+	}
+	if err := checkModelUse(report{}, true); err == nil {
+		t.Fatal("requested model was not observed")
+	}
+	r := report{Budget: 8, Model: json.RawMessage(`{"loaded":false}`), Assembly: []json.RawMessage{json.RawMessage(`{"model_calls":0,"total":5}`)}}
+	if err := checkModelUse(r, false); err != nil {
+		t.Fatal(err)
+	}
+	if err := checkModelUse(r, true); err == nil {
+		t.Fatal("missing requested inference accepted")
+	}
+}

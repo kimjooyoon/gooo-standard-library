@@ -1,0 +1,8 @@
+{
+  "schema": "gooo/body-composition-inputs/v1",
+  "inputs": [
+    {"examples/preview:Plan.input0":"한글 예제","examples/preview:Plan.input1":20},
+    {"examples/preview:Plan.input0":"","examples/preview:Plan.input1":1},
+    {"examples/preview:Plan.input0":"doc","examples/preview:Plan.input1":-5}
+  ]
+}

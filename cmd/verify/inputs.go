@@ -48,13 +48,18 @@ func disjointPreview(f fixture) error {
 }
 
 func observeInputs(ctx context.Context, compiler, dir, generated string) (int, error) {
-	inputs := []map[string]any{
-		{"examples/preview:Plan.input0": "한글 예제", "examples/preview:Plan.input1": 20},
-		{"examples/preview:Plan.input0": "", "examples/preview:Plan.input1": 1},
-		{"examples/preview:Plan.input0": "doc", "examples/preview:Plan.input1": -5},
+	var request struct {
+		Schema string                       `json:"schema"`
+		Inputs []map[string]json.RawMessage `json:"inputs"`
+	}
+	if err := readJSON("examples/preview-inputs.json", &request); err != nil {
+		return 0, err
+	}
+	if request.Schema != "gooo/body-composition-inputs/v1" || len(request.Inputs) != 3 {
+		return 0, fmt.Errorf("expected three usage inputs")
 	}
 	path := filepath.Join(dir, "inputs.json")
-	if err := save(path, map[string]any{"schema": "gooo/body-composition-inputs/v1", "inputs": inputs}); err != nil {
+	if err := save(path, request); err != nil {
 		return 0, err
 	}
 	raw, err := execute(ctx, compiler, filepath.Join(dir, "input-only.json"), "package", "replay", "--json", "--receipt", filepath.Join(dir, "execution.json"), "--inputs", path, filepath.Join(dir, "gooo.workspace.json"))
@@ -72,6 +77,15 @@ func observeInputs(ctx context.Context, compiler, dir, generated string) (int, e
 	for i, t := range r.Traces {
 		if t.Index != i || len(t.Deliveries) != 1 || len(t.Deliveries[0].Expected) != 0 || t.Deliveries[0].Passed != nil || len(t.Deliveries[0].Actual) == 0 {
 			return 0, fmt.Errorf("input-only execution acquired expectations or lost values")
+		}
+		d := t.Deliveries[0]
+		if len(d.Inputs) != 2 {
+			return 0, fmt.Errorf("usage input arity differs")
+		}
+		for j, input := range d.Inputs {
+			if input.Port != fmt.Sprintf("input%d", j) || !equalJSON(input.Value, request.Inputs[i][fmt.Sprintf("examples/preview:Plan.input%d", j)]) {
+				return 0, fmt.Errorf("usage argument differs")
+			}
 		}
 	}
 	return 3, nil

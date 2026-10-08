@@ -246,6 +246,9 @@ func equalJSON(left, right json.RawMessage) bool {
 }
 
 func checkModelUse(r report, enabled bool) error {
+	if r.Budget == 0 && !enabled && len(r.Assembly) == 0 && len(r.Model) == 0 {
+		return nil
+	}
 	var m struct {
 		Loaded *bool `json:"loaded"`
 	}
