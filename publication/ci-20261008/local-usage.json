@@ -1,0 +1,78 @@
+[
+  {
+    "decision": "OBSERVED",
+    "generated": "sha256:be59aef7fba25ebd9f1fee71e03571bd19e25ed969618d93520d82a80bc95f62",
+    "model": {
+      "schema": "gooo/retained-path-model/v1",
+      "loaded": false,
+      "resident_tensor_bytes": 0,
+      "setup_ms": 0.000166,
+      "scope": "one constructor load; excluded from request timing; fresh source and plan each request"
+    },
+    "replay": null,
+    "runtime_calls": 0,
+    "actual": [
+      {
+        "available": true,
+        "bytes": 13,
+        "title": "한글 예제"
+      }
+    ]
+  },
+  {
+    "decision": "OBSERVED",
+    "generated": "sha256:be59aef7fba25ebd9f1fee71e03571bd19e25ed969618d93520d82a80bc95f62",
+    "model": {
+      "schema": "gooo/retained-path-model/v1",
+      "loaded": true,
+      "metadata_sha256": "3c68205a660695103712e2115ce90accd298b406dced8ad5ad5c9b84bab0a202",
+      "weights_sha256": "76f68845a03ed8c8bc261a57c919e96dcdd352d3c35bcdaeb3d9b51a88975c6f",
+      "resident_tensor_bytes": 2096,
+      "setup_ms": 1.072958,
+      "scope": "one constructor load; excluded from request timing; fresh source and plan each request",
+      "model_schema": "gooo/tiny-shared-three-choice-path-model/v1",
+      "feature_version": "triple_record_value_graph_v3_shared_v1",
+      "arithmetic_version": "float32_separate_v1"
+    },
+    "replay": null,
+    "runtime_calls": 0,
+    "actual": [
+      {
+        "available": true,
+        "bytes": 13,
+        "title": "한글 예제"
+      }
+    ]
+  },
+  {
+    "decision": "OBSERVED",
+    "generated": "sha256:be59aef7fba25ebd9f1fee71e03571bd19e25ed969618d93520d82a80bc95f62",
+    "model": {
+      "schema": "gooo/retained-path-model/v1",
+      "loaded": true,
+      "metadata_sha256": "3c68205a660695103712e2115ce90accd298b406dced8ad5ad5c9b84bab0a202",
+      "weights_sha256": "76f68845a03ed8c8bc261a57c919e96dcdd352d3c35bcdaeb3d9b51a88975c6f",
+      "resident_tensor_bytes": 2096,
+      "setup_ms": 1.072958,
+      "scope": "one constructor load; excluded from request timing; fresh source and plan each request",
+      "model_schema": "gooo/tiny-shared-three-choice-path-model/v1",
+      "feature_version": "triple_record_value_graph_v3_shared_v1",
+      "arithmetic_version": "float32_separate_v1"
+    },
+    "replay": {
+      "schema": "gooo/workspace-body-replay/v1",
+      "prior_result_sha256": "sha256:a42746c4005be71e87411e94cf87355b4b19843a4a3c774f5337e5d0ca4af0cf",
+      "body_fills_replayed": 0,
+      "model_calls": 0,
+      "scope": "saved decisions and source-bound candidates reconstructed without inference; old runtime observations are not reused"
+    },
+    "runtime_calls": 0,
+    "actual": [
+      {
+        "available": false,
+        "bytes": 1,
+        "title": "untitled"
+      }
+    ]
+  }
+]

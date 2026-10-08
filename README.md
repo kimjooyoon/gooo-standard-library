@@ -24,6 +24,34 @@ Gooo 프로그램에서 가져다 쓰는 작은 함수 모음입니다. 숫자·
 
 예제는 제목과 예산을 받아 사용 여부, 빈 제목의 대체값, 사용할 바이트 수를
 계산합니다. 세 패키지의 함수를 부르고 결과의 세 필드를 조립합니다.
+이름과 예산을 직접 넣어 보려면 저장소 루트에서 실행합니다.
+
+```sh
+go run ./cmd/preview --title '한글 예제' --budget 20 --out out/preview
+```
+
+```json
+{"available":true,"bytes":13,"title":"한글 예제"}
+```
+
+제목의 길이는 공백을 포함해 UTF-8 13바이트입니다. `bytes`는 사용할 수 있는
+바이트 예산이며 제목 자체를 잘라 내지는 않습니다. Go 명령은 입력 전달과 출력
+표시를 맡고, 계산과 조건은 `examples/preview.gooo`와 가져온 Gooo 함수에서 실행됩니다.
+처음에는 `gooo`가 PATH에 있어야 하며, 다른 위치는 `--compiler /path/to/gooo`로 지정합니다.
+
+저장한 프로그램에 다른 입력을 넣으려면:
+
+```sh
+go run ./cmd/preview --title '' --budget 1 \
+  --receipt out/preview/execution.json --out out/reused
+```
+
+이 입력은 `{"available":false,"bytes":1,"title":"untitled"}`를 반환합니다.
+각 `--out`에는 새 폴더를 지정합니다. 전체 입력과 실행 기록은 그 폴더에 남습니다.
+처음 조립할 때 `--model /absolute/path/to/model.json`을 붙이면 자체 모델을 쓰며,
+저장 재실행에는 모델 옵션을 생략합니다.
+
+컴파일러를 직접 호출하는 동일한 경로는 다음과 같습니다.
 
 ```sh
 gooo package execute --json --inputs examples/preview-inputs.json gooo.workspace.json > execution.json
@@ -79,6 +107,8 @@ go run ./cmd/verify --compiler /path/to/gooo --model /path/to/model.json --out o
 각각 새 출력 폴더를 사용합니다. 관측기는 int64를 보존해 실제 값과 기대값을
 비교하고, 입력·출력 활동·재실행·새 모델 호출 수를 확인합니다.
 CI도 공개된 컴파일러 파일과 고정한 모델 소스로 같은 예제를 실행합니다.
+첫 [Linux CI](https://github.com/kimjooyoon/gooo-standard-library/actions/runs/37766633713)도
+통과했습니다. 플랫폼별 원본과 대조 범위는 [후속 관측](publication/ci-20261008/README.md)에 있습니다.
 
 기존 [생태계 작업장](https://github.com/kimjooyoon/gooo-ecosystem-workbench)의 기본 함수와
 컴파일러의 문자열 예제에서 출발했습니다. 작은 도구에서 같은 판단과 계산을

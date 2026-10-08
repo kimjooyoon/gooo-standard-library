@@ -1,0 +1,1 @@
+PASS: 25 run summaries and 52 raw observations agree on delivered inputs, actual/expected values, finite counts, generated code and saved replay. Timings and platform binary hashes are not compared.

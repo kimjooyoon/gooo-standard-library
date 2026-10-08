@@ -27,7 +27,7 @@ jobs:
           sparse-checkout: models/graph-chooser-20261008/all-data-demonstration/qat_ternary
       - name: Check the Go observer and Gooo library sources
         run: |
-          test -z "$(gofmt -l cmd/verify)"
+          test -z "$(gofmt -l cmd)"
           go vet ./...
           go test -race ./...
           for source in library/*.gooo; do ./.gooo check "$source"; done
@@ -36,6 +36,15 @@ jobs:
           mkdir -p out
           go run ./cmd/verify --compiler "$PWD/.gooo" --model "$PWD/.model/models/graph-chooser-20261008/all-data-demonstration/qat_ternary/model.json" --out out/ci | tee out/ci.log
           jq -e '.functions==17 and .consumer_programs==1 and .model_observed==true and ([.runs[]|select(.mode=="library")|.passed]|add)==79 and ([.runs[]|select(.mode=="library")|.input_tuples]|add)==79 and ([.runs[]|select(.budget==8)|.passed==10 and .fields_passed==30 and .input_only_rows==3]|all) and ([.runs[].replay_equal]|all)' out/ci/summary.json
+      - name: Use the preview command and replay it on a different input
+        run: |
+          go run ./cmd/preview --compiler "$PWD/.gooo" --title '한글 예제' --budget 20 --out out/cli-fixed > out/cli-fixed.json
+          go run ./cmd/preview --compiler "$PWD/.gooo" --title '한글 예제' --budget 20 --model "$PWD/.model/models/graph-chooser-20261008/all-data-demonstration/qat_ternary/model.json" --out out/cli-model > out/cli-model.json
+          jq -e '. == {available:true,title:"한글 예제",bytes:13}' out/cli-fixed.json out/cli-model.json
+          go run ./cmd/preview --compiler "$PWD/.gooo" --title '' --budget 1 --receipt out/cli-model/execution.json --out out/cli-replay > out/cli-replay.json
+          jq -e '. == {available:false,title:"untitled",bytes:1}' out/cli-replay.json
+          jq -e '.decision=="OBSERVED" and .result.runtime.finite_total==0 and .result.runtime.finite_passed==0 and .result.runtime.model_calls==0' out/cli-fixed/execution.json out/cli-model/execution.json out/cli-replay/execution.json
+          jq -e '.result.replay.model_calls==0 and (.replayed_from_sha256|length)>0' out/cli-replay/execution.json
       - uses: actions/upload-artifact@v7
         if: always()
         with:
