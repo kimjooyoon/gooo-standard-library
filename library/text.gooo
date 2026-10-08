@@ -1,0 +1,12 @@
+package text
+namespace gooo_std_text
+entity Text id "gooo://std/text"
+entity Integer id "gooo://std/integer"
+entity Boolean id "gooo://std/boolean"
+
+activity Coalesce(Text, Text) -> Text computes `if input0 != "" { return input0 }; return input1`
+activity Choose(Text, Text, Boolean) -> Text computes `if input2 { return input0 }; return input1`
+activity HasPrefix(Text, Text) -> Boolean computes `return len(input0) >= len(input1) && input0[:len(input1)] == input1`
+activity HasSuffix(Text, Text) -> Boolean computes `return len(input0) >= len(input1) && input0[len(input0)-len(input1):] == input1`
+activity StripSuffix(Text, Text) -> Text computes `if HasSuffix(input0, input1) { return input0[:len(input0)-len(input1)] }; return input0`
+activity ByteLength(Text) -> Integer computes `return int64(len(input))`

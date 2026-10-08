@@ -1,0 +1,7 @@
+package logic
+namespace gooo_std_logic
+entity Boolean id "gooo://std/boolean"
+
+activity And(Boolean, Boolean) -> Boolean computes `return input0 && input1`
+activity Or(Boolean, Boolean) -> Boolean computes `return input0 || input1`
+activity Not(Boolean) -> Boolean computes `return !input`

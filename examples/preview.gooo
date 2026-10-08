@@ -1,0 +1,27 @@
+package preview
+namespace gooo_example_preview
+import numbers "std/numbers"
+import logic "std/logic"
+import text "std/text"
+entity Text id "gooo://std/text"
+entity Integer id "gooo://std/integer"
+entity Preview id "gooo://examples/preview" fields {
+    field available id "gooo://examples/preview/available" type boolean required one
+    field title id "gooo://examples/preview/title" type string required one
+    field bytes id "gooo://examples/preview/bytes" type integer required one
+}
+activity Plan(Text, Integer) -> Preview computes `let limit = numbers.Clamp(input1, 0, 80)
+let title = text.Coalesce(input0, "untitled")
+let bytes = numbers.Min(text.ByteLength(title), limit)
+let available = logic.And(limit > 0, text.ByteLength(input0) > 0)
+return Preview{available: false, title: input0, bytes: 0}` assembling {
+    choice "available" field_value at "0" alternative "available" intent "원문과 사용 가능한 예산이 있을 때 표시한다. Keep the computed availability."
+    choice "title" field_value at "1" alternative "title" intent "빈 제목의 대체값을 보존한다. Keep the title with its empty-input fallback."
+    choice "bytes" field_value at "2" alternative "bytes" intent "예산과 80바이트 상한을 적용한 길이를 보존한다. Keep the computed byte budget."
+    value_case "[\"guide\",3]" -> "{\"available\":true,\"title\":\"guide\",\"bytes\":3}"
+    value_case "[\"\",20]" -> "{\"available\":false,\"title\":\"untitled\",\"bytes\":8}"
+    value_case "[\"hello\",-1]" -> "{\"available\":false,\"title\":\"hello\",\"bytes\":0}"
+    value_case "[\"한🙂\",80]" -> "{\"available\":true,\"title\":\"한🙂\",\"bytes\":7}"
+    value_case "[\"hello\",0]" -> "{\"available\":false,\"title\":\"hello\",\"bytes\":0}"
+    attempts "8"
+}
