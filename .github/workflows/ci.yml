@@ -11,14 +11,14 @@ jobs:
       - uses: actions/setup-go@v7
         with:
           go-version: '1.27.1'
-      - name: Download the published Gooo 0.6.10 compiler
+      - name: Download the published Gooo 0.6.11 compiler
         run: |
-          curl --fail --location --retry 3 --output "$RUNNER_TEMP/gooo.tar.gz" https://github.com/kimjooyoon/meta-ontology-go/releases/download/v0.6.10-dev/gooo-linux-amd64.tar.gz
-          printf '%s  %s\n' da1abed162a95133a79c14d340aa763ae4945639cb791e30d541066fcf20bd93 "$RUNNER_TEMP/gooo.tar.gz" | sha256sum -c -
+          curl --fail --location --retry 3 --output "$RUNNER_TEMP/gooo.tar.gz" https://github.com/kimjooyoon/meta-ontology-go/releases/download/v0.6.11-dev/gooo-linux-amd64.tar.gz
+          printf '%s  %s\n' 70b566c1ddd861a350820f60bcbe2bfff197651b5607b10fe66259a8d0c0e1dd "$RUNNER_TEMP/gooo.tar.gz" | sha256sum -c -
           mkdir "$RUNNER_TEMP/gooo-published"
           tar -xzf "$RUNNER_TEMP/gooo.tar.gz" -C "$RUNNER_TEMP/gooo-published"
           cp "$RUNNER_TEMP/gooo-published/gooo" .gooo
-          ./.gooo version --build --json | jq -e '.version=="0.6.10-dev" and .vcs_revision=="eb0dc4704705147f9ba944db3df2ba5e3225cbff" and .vcs_modified=="false" and .go_version=="go1.27.1"'
+          ./.gooo version --build --json | jq -e '.version=="0.6.11-dev" and .vcs_revision=="27594824ad628ef0e8362bbc1e0e034aee88e07c" and .vcs_modified=="false" and .go_version=="go1.27.1"'
       - uses: actions/checkout@v7
         with:
           repository: kimjooyoon/gooo-ecosystem-workbench
