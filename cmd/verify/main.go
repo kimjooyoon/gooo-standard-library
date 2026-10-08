@@ -72,6 +72,9 @@ func run() error {
 		return err
 	}
 	modes := []string{"fixed"}
+	if err = disjointPreview(preview); err != nil {
+		return err
+	}
 	if *model != "" {
 		modes = append(modes, "model")
 	}

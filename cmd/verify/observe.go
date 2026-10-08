@@ -23,21 +23,31 @@ type report struct {
 	GeneratedSHA string            `json:"generated_sha256"`
 	ReplayEqual  bool              `json:"replay_equal"`
 	Assembly     []json.RawMessage `json:"assembly"`
+	Model        json.RawMessage   `json:"model"`
+	InputOnly    int               `json:"input_only_rows,omitempty"`
 }
 
 type envelope struct {
 	Schema, Decision, Error string
 	ReplayedFrom            string `json:"replayed_from_sha256"`
 	Result                  struct {
+		Program struct {
+			Entry struct {
+				Package  string `json:"package_path"`
+				Activity string `json:"activity"`
+			} `json:"entry"`
+		} `json:"program"`
 		Replay *struct {
 			Calls *int `json:"model_calls"`
 		} `json:"replay"`
 		Composition struct {
-			SHA   string `json:"generated_sha256"`
+			SHA   string          `json:"generated_sha256"`
+			Model json.RawMessage `json:"model"`
 			Steps []struct {
 				Generation struct {
 					Report struct {
 						Assembly json.RawMessage `json:"record_assembly"`
+						ID       string          `json:"activity_id"`
 					} `json:"report"`
 				} `json:"generation"`
 			} `json:"steps"`
@@ -53,6 +63,12 @@ type envelope struct {
 				Deliveries []struct {
 					Actual, Expected json.RawMessage
 					Passed           *bool
+					ID               string          `json:"activity_id"`
+					Input            json.RawMessage `json:"input"`
+					Inputs           []struct {
+						Port  string          `json:"port"`
+						Value json.RawMessage `json:"value"`
+					} `json:"inputs"`
 				} `json:"deliveries"`
 			} `json:"traces"`
 		} `json:"runtime"`
@@ -92,6 +108,9 @@ func inspect(raw []byte, f fixture) (envelope, int, int, int, []any, error) {
 		return e, 0, 0, 0, nil, err
 	}
 	r := e.Result.Runtime
+	if e.Result.Program.Entry.Package != f.Package || e.Result.Program.Entry.Activity != f.Activity || len(e.Result.Composition.Steps) != 1 {
+		return e, 0, 0, 0, nil, fmt.Errorf("entry or constructed activity roster differs")
+	}
 	if e.Schema != "gooo/workspace-body-execution-receipt/v1" || e.Error != "" || r.Calls == nil || *r.Calls != 0 || r.Passed == nil || r.Total == nil || !r.Projection || !r.Replayed || len(r.Traces) != len(f.Cases) || e.Result.Composition.SHA == "" {
 		return e, 0, 0, 0, nil, fmt.Errorf("incomplete execution evidence for %s:%s", f.Package, f.Activity)
 	}
@@ -102,6 +121,23 @@ func inspect(raw []byte, f fixture) (envelope, int, int, int, []any, error) {
 			return e, 0, 0, 0, nil, fmt.Errorf("unexpected case or delivery roster")
 		}
 		d := t.Deliveries[0]
+		if d.ID == "" || d.ID != e.Result.Composition.Steps[0].Generation.Report.ID {
+			return e, 0, 0, 0, nil, fmt.Errorf("delivery identity differs")
+		}
+		if len(f.Cases[i].Inputs) == 1 {
+			if !equalJSON(d.Input, f.Cases[i].Inputs[0]) {
+				return e, 0, 0, 0, nil, fmt.Errorf("delivered input differs")
+			}
+		} else {
+			if len(d.Inputs) != len(f.Cases[i].Inputs) {
+				return e, 0, 0, 0, nil, fmt.Errorf("input arity differs")
+			}
+			for j, input := range d.Inputs {
+				if input.Port != fmt.Sprintf("input%d", j) || !equalJSON(input.Value, f.Cases[i].Inputs[j]) {
+					return e, 0, 0, 0, nil, fmt.Errorf("delivered argument differs")
+				}
+			}
+		}
 		actual, err := decode(d.Actual)
 		if err != nil {
 			return e, 0, 0, 0, nil, err
@@ -162,6 +198,7 @@ func observe(ctx context.Context, compiler, root string, f fixture, mode string,
 		return r, err
 	}
 	r.Passed, r.FieldsPassed, r.FieldsTotal, r.GeneratedSHA = passed, fp, ft, built.Result.Composition.SHA
+	r.Model = built.Result.Composition.Model
 	if built.ReplayedFrom != "" || built.Result.Replay != nil {
 		return r, fmt.Errorf("execute unexpectedly returned saved-replay metadata")
 	}
@@ -182,6 +219,18 @@ func observe(ctx context.Context, compiler, root string, f fixture, mode string,
 		return r, fmt.Errorf("saved replay differs")
 	}
 	r.ReplayEqual = true
+	if budget == 8 {
+		r.InputOnly, err = observeInputs(ctx, compiler, dir, r.GeneratedSHA)
+		if err != nil {
+			return r, err
+		}
+	}
 	fmt.Printf("%s:%s %s budget=%d cases=%d/%d fields=%d/%d replay=equal\n", f.Package, f.Activity, mode, budget, r.Passed, r.Total, fp, ft)
 	return r, nil
+}
+
+func equalJSON(left, right json.RawMessage) bool {
+	l, le := decode(left)
+	r, re := decode(right)
+	return le == nil && re == nil && reflect.DeepEqual(l, r)
 }
