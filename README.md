@@ -8,9 +8,12 @@ Gooo 프로그램에서 가져다 쓰는 작은 함수 모음입니다. 숫자·
 관측 파일 저장을 맡습니다. Go 1.27.2와 Gooo 0.6.17 개발 소스를 사용합니다.
 CI는 컴파일러 소스 `be4ef88cca4bc3df1e78ae91c8fe8388413f05c9`를 고정해 빌드하고,
 실행 파일의 소스 리비전과 Go 1.27.2 빌드 정보를 확인합니다.
-로컬에서도 이 리비전의 깨끗한 컴파일러 체크아웃에서 `go build -trimpath -o gooo ./cmd/gooo`로
-빌드한 뒤 `--compiler`로 지정합니다. 예전 공개 파일은 Go 1.27.1을 요구하므로
-현재 환경에서는 위 소스로 빌드한 실행 파일을 사용합니다.
+로컬에서 CI와 같은 리비전을 쓰려면 깨끗한 컴파일러 체크아웃에서
+`go build -trimpath -o gooo ./cmd/gooo`로 빌드한 뒤 `--compiler`로 지정합니다.
+바로 실행하려면 Go 1.27.2로 빌드한
+[공개 Gooo 0.6.17 개발판](https://github.com/kimjooyoon/meta-ontology-go/releases/tag/v0.6.17-dev)도
+사용할 수 있습니다. 공개 파일의 소스는 `ae71176b0c180b1bf3a1d8244a10f5f947b03455`이며,
+`gooo version --build --json`으로 리비전과 `go_version`, `native_go_required`를 확인합니다.
 
 ## 들어 있는 함수
 
